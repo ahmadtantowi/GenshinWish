@@ -1,18 +1,29 @@
 using System;
 using System.IO;
+using GenshinWish.Enums;
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace GenshinWish.Utils
 {
     public static class GenshinLog
     {
-        public static string AddWishLogParam(string param, int page, int size, string gachaType, string lang = "en-US")
+        public static string GetWishQueryString(WishEndpoint wish, string param)
+        {
+            var wishEndpoint = wish switch
+            {
+                WishEndpoint.Config => "getConfigList",
+                _ => "getGachaLog"
+            };
+
+            return string.Format("{0}?{1}", wishEndpoint, param);
+        }
+
+        public static string AddWishLogParam(string param, int page, int size, string gachaType)
         {
             var query = QueryHelpers.ParseQuery(param);
             query.Add("page", page.ToString());
             query.Add("size", size.ToString());
             query.Add("gacha_type", gachaType);
-            query.Add("lang", lang);
 
             return query.ToString();
         }
@@ -33,7 +44,7 @@ namespace GenshinWish.Utils
                 }
             }
 
-            throw new Exception("Url not found");
+            throw new Exception("Url not found, please open wish history and retry");
         }
 
         private static string GetLocalDataPath()
@@ -41,7 +52,7 @@ namespace GenshinWish.Utils
             var names = new[] { "Genshin Impact", "原神" };
             foreach (var name in names)
             {
-                var path = Path.Combine(Environment.SpecialFolder.LocalApplicationData + "Low", "miHoYo", name);
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "Low", "miHoYo", name);
                 if (Directory.Exists(path))
                 {
                     path = Path.Combine(path, "output_log.txt");
