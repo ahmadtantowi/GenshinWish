@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using GenshinWish.Enums;
-using Microsoft.AspNetCore.WebUtilities;
 
 namespace GenshinWish.Utils
 {
@@ -20,12 +19,7 @@ namespace GenshinWish.Utils
 
         public static string AddWishLogParam(string param, int page, int size, string gachaType)
         {
-            var query = QueryHelpers.ParseQuery(param);
-            query.Add("page", page.ToString());
-            query.Add("size", size.ToString());
-            query.Add("gacha_type", gachaType);
-
-            return query.ToString();
+            return string.Format("{0}&gacha_type={1}&page={2}&size={3}", param, gachaType, page, size);
         }
 
         public static string GetWishParam()
