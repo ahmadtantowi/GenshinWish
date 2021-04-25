@@ -27,18 +27,14 @@ namespace GenshinWish.Utils
             var path = GetLocalDataPath();
             using var reader = new StreamReader(path);
 
-            while(reader.Peek() >= 0)
-            {
-                var line = reader.ReadLine();
-                if (line.StartsWith("OnGetWebViewPageFinish:") && line.EndsWith("#/log"))
-                {
-                    var url = line.Replace("OnGetWebViewPageFinish:", string.Empty).Replace("#/log", string.Empty);
+            return ReadOutputLog(reader);
+        }
 
-                    return url.Split('?')[1];
-                }
-            }
+        public static string GetWishParam(Stream stream)
+        {
+            using var reader = new StreamReader(stream);
 
-            throw new Exception("Url not found, please open wish history and retry");
+            return ReadOutputLog(reader);
         }
 
         private static string GetLocalDataPath()
@@ -60,6 +56,22 @@ namespace GenshinWish.Utils
             }
 
             throw new DirectoryNotFoundException("Can't found local app data");
+        }
+
+        private static string ReadOutputLog(StreamReader reader)
+        {
+            while (reader.Peek() >= 0)
+            {
+                var line = reader.ReadLine();
+                if (line.StartsWith("OnGetWebViewPageFinish:") && line.EndsWith("#/log"))
+                {
+                    var url = line.Replace("OnGetWebViewPageFinish:", string.Empty).Replace("#/log", string.Empty);
+
+                    return url.Split('?')[1];
+                }
+            }
+
+            throw new Exception("Url not found, please open wish history and retry");
         }
     }
 }
